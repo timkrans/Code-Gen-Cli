@@ -20,7 +20,7 @@ A command-line interface for generating code using LLM (Large Language Model) ag
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/timkrans/Code-Gen-Cli
 cd Code-Gen-CLI
 ```
 
