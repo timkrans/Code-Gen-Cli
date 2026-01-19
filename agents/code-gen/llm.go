@@ -1,4 +1,4 @@
-package llm
+package code
 
 import (
     "bufio"
@@ -10,25 +10,16 @@ import (
     "net/http"
     "path/filepath"
     "strings"
+    "code-gen-cli/agents/models"
 )
 
-type OllamaRequest struct {
-    Model  string `json:"model"`
-    Prompt string `json:"prompt"`
-    Stream bool   `json:"stream"`
-}
-
-type OllamaResponse struct {
-    Response string `json:"response"`
-    Done     bool   `json:"done"`
-}
 
 func GenerateCode(prompt string) (map[string]string, error) {
     fmt.Println("Connecting to Ollama...")
 
     fullPrompt := `You are a code generation assistant.
 Generate Go code based on the following prompt.
-Split the output into files using this format and NOTHING other then this format:
+Split the output into files using this format and NOTHING other then this format starting with no spaces:
 
 /// FILE: <relative_path>
 <code>
@@ -36,7 +27,7 @@ Split the output into files using this format and NOTHING other then this format
 Prompt:
 ` + prompt
 
-    reqBody := OllamaRequest{
+    reqBody := models.OllamaRequest{
         Model:  "llama3.2",
         Prompt: fullPrompt,
         Stream: true,
@@ -61,7 +52,7 @@ Prompt:
     decoder := json.NewDecoder(resp.Body)
 
     for decoder.More() {
-        var chunk OllamaResponse
+        var chunk models.OllamaResponse
         err := decoder.Decode(&chunk)
         if err != nil {
             if errors.Is(err, io.EOF) {
@@ -72,7 +63,7 @@ Prompt:
 
         fullResponse.WriteString(chunk.Response)
     }
-
+    fmt.Printf(fullResponse.String())
     return parseMultiFileResponse(fullResponse.String()), nil
 }
 
