@@ -83,7 +83,11 @@ Code written to './example'
 Code-Gen-CLI/
 ├── agents/
 │   ├── code-gen/
-│   │   └── llm.go          # LLM integration with Ollama
+│   │   └── llm.go          # LLM integration with 
+│   ├── ask/
+│   │   └── llm.go
+│   ├── models/
+│   │   └── models.go    
 │   └── fs/
 │       └── fs.go           # File system operations
 ├── cmd/
