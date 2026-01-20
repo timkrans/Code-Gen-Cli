@@ -11,21 +11,37 @@ import (
     "code-gen-cli/agents/ask"
 )
 
+func readMultiline(scanner *bufio.Scanner) string {
+    var lines []string
+    for {
+        if !scanner.Scan() {
+            break
+        }
+        line := scanner.Text()
+        if strings.TrimSpace(line) == "---" {
+            break
+        } else if  line == "ask"|| line == "quit" ||  line == "exit"{
+            return line
+        }  
+        lines = append(lines, line)
+    }
+    return strings.Join(lines, "\n")
+}
+
+
 func main() {
     fmt.Println("Welcome to LLM Codegen Agent!")
     fmt.Println("Type a prompt and I'll generate code for you.")
     fmt.Println("Type 'quit' or 'exit' to leave.")
     fmt.Println("Type ask to ask a question with no code generation")
     fmt.Println()
-
     scanner := bufio.NewScanner(os.Stdin)
-    for {
-        fmt.Print("You: ")
-        if !scanner.Scan() {
-            break
-        }
+    scanner.Buffer(make([]byte, 1024), 1024*1024) 
 
-        input := strings.TrimSpace(scanner.Text())
+    for {
+        fmt.Print("You (end with ---):")
+        input := readMultiline(scanner)
+
         if input == "" {
             continue
         }
@@ -36,12 +52,9 @@ func main() {
         }
 
         if input == "ask"{
-            fmt.Print("Ask: ")
+            fmt.Print("You ask (end with ---):")
+            input := readMultiline(scanner)
 
-            if !scanner.Scan() {
-                break
-            }
-            input = strings.TrimSpace(scanner.Text())
             ask.GenerateAnswer(input)
             fmt.Println()
             fmt.Println(strings.Repeat("-", 50))
