@@ -48,23 +48,39 @@ Prompt:
         return nil, fmt.Errorf("Ollama returned non-200: %d", resp.StatusCode)
     }
 
-    var fullResponse strings.Builder
-    decoder := json.NewDecoder(resp.Body)
+    provider := os.Getenv("LLM_PROVIDER")
+    var output string
 
-    for decoder.More() {
-        var chunk models.OllamaResponse
-        err := decoder.Decode(&chunk)
+    switch provider {
+
+    case "ollama":
+        output, err = decodeOllamaStream(resp.Body)
         if err != nil {
-            if errors.Is(err, io.EOF) {
-                break
-            }
-            return nil, fmt.Errorf("failed to decode Ollama stream: %w", err)
+            return nil, err
         }
 
-        fullResponse.WriteString(chunk.Response)
+    case "openai":
+        output, err = decodeOpenAI(resp.Body)
+
+    case "anthropic":
+        output, err = decodeAnthropic(resp.Body)
+
+    case "google":
+        output, err = decodeGemini(resp.Body)
+
+    case "huggingface":
+        output, err = decodeHuggingFace(resp.Body)
+
+    default:
+        return nil, fmt.Errorf("unsupported provider: %s", provider)
     }
-    fmt.Printf(fullResponse.String())
-    return parseMultiFileResponse(fullResponse.String()), nil
+
+    if err != nil {
+        return nil, err
+    }
+
+    fmt.Print(output)
+    return parseMultiFileResponse(output), nil
 }
 
 
