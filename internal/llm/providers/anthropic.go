@@ -4,8 +4,9 @@ import (
     "bytes"
     "encoding/json"
     "net/http"
-
-    "code-gen-cli/internal/llm"
+    "io"
+    "errors"
+	"code-gen-cli/internal/llm"
 )
 
 type Anthropic struct {
@@ -46,7 +47,7 @@ func (a *Anthropic) Generate(prompt string) (*http.Response, error) {
     return http.DefaultClient.Do(req)
 }
 
-func decodeAnthropic(body io.Reader) (string, error) {
+func (a *Anthropic)decodeAnthropic(body io.Reader) (string, error) {
     var res struct {
         Content []struct {
             Text string `json:"text"`

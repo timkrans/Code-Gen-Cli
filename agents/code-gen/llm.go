@@ -2,15 +2,13 @@ package code
 
 import (
     "bufio"
-    "bytes"
-    "encoding/json"
-    "errors"
     "fmt"
-    "io"
     "net/http"
     "path/filepath"
     "strings"
-    "code-gen-cli/agents/models"
+    "code-gen-cli/internal/llm"
+    "code-gen-cli/internal/llm/factory"
+    "os"
 )
 
 
@@ -27,20 +25,12 @@ Split the output into files using this format and NOTHING other then this format
 Prompt:
 ` + prompt
 
-    reqBody := models.OllamaRequest{
-        Model:  "llama3.2",
-        Prompt: fullPrompt,
-        Stream: true,
-    }
+    cfg := llm.LoadConfig()
+    client := factory.NewClient(cfg)
 
-    reqBytes, err := json.Marshal(reqBody)
+    resp, err := client.Generate(fullPrompt)
     if err != nil {
-        return nil, err
-    }
-
-    resp, err := http.Post("http://localhost:11434/api/generate", "application/json", bytes.NewBuffer(reqBytes))
-    if err != nil {
-        return nil, fmt.Errorf("failed to connect to Ollama: %w", err)
+        return fmt.Errorf("failed to connect to LLM: %w", err)
     }
     defer resp.Body.Close()
 
@@ -54,22 +44,22 @@ Prompt:
     switch provider {
 
     case "ollama":
-        output, err = decodeOllamaStream(resp.Body)
+        output, err = client.decodeOllamaStream(resp.Body)
         if err != nil {
             return nil, err
         }
 
     case "openai":
-        output, err = decodeOpenAI(resp.Body)
+        output, err = client.decodeOpenAI(resp.Body)
 
     case "anthropic":
-        output, err = decodeAnthropic(resp.Body)
+        output, err = client.decodeAnthropic(resp.Body)
 
     case "google":
-        output, err = decodeGemini(resp.Body)
+        output, err = client.decodeGemini(resp.Body)
 
     case "huggingface":
-        output, err = decodeHuggingFace(resp.Body)
+        output, err = client.decodeHuggingFace(resp.Body)
 
     default:
         return nil, fmt.Errorf("unsupported provider: %s", provider)

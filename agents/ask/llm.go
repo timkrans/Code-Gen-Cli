@@ -1,20 +1,17 @@
 package ctx
 
 import (
-    "encoding/json"
-    "strings"
     "fmt"
-    "errors"
     "net/http"
     "io"
     "os"
-
     "code-gen-cli/internal/llm"
+    "code-gen-cli/internal/llm/factory"
 )
 
 func GenerateContext(prompt string) error {
     cfg := llm.LoadConfig()
-    client := llm.NewClient(cfg)
+    client := factory.NewClient(cfg)
 
     resp, err := client.Generate(prompt)
     if err != nil {
@@ -33,21 +30,21 @@ func GenerateContext(prompt string) error {
     switch provider {
 
     case "ollama":
-        output, err = decodeOllamaStream(resp.Body)
+        output, err = client.decodeOllamaStream(resp.Body)
         if err != nil {
             return err
         }
     case "openai":
-        output, err = decodeOpenAI(resp.Body)
+        output, err = client.decodeOpenAI(resp.Body)
 
     case "anthropic":
-        output, err = decodeAnthropic(resp.Body)
+        output, err = client.decodeAnthropic(resp.Body)
 
     case "google":
-        output, err = decodeGemini(resp.Body)
+        output, err = client.decodeGemini(resp.Body)
 
     case "huggingface":
-        output, err = decodeHuggingFace(resp.Body)
+        output, err = client.decodeHuggingFace(resp.Body)
 
     default:
         return fmt.Errorf("unsupported provider: %s", provider)

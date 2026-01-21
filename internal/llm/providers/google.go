@@ -4,13 +4,22 @@ import (
     "bytes"
     "encoding/json"
     "net/http"
-
-    "code-gen-cli/internal/llm"
+    "io"
+    "errors"
+	"fmt"
+	"code-gen-cli/internal/llm"
 )
 
 type GoogleClient struct {
     APIKey string
     Model  string
+}
+
+func NewGoogle(cfg llm.Config) *GoogleClient {
+    return &GoogleClient{
+        APIKey: cfg.GoogleAPIKey,
+        Model:  cfg.GoogleModel,
+    }
 }
 
 func (c *GoogleClient) Generate(prompt string) (*http.Response, error) {

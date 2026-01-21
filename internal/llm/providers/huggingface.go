@@ -4,8 +4,9 @@ import (
     "bytes"
     "encoding/json"
     "net/http"
-
-    "code-gen-cli/internal/llm"
+	"io"
+    "errors"
+	"code-gen-cli/internal/llm"
 )
 
 type HuggingFaceClient struct {
@@ -13,6 +14,15 @@ type HuggingFaceClient struct {
     APIKey  string
     Model   string
 }
+
+func NewHuggingFace(cfg llm.Config) *HuggingFaceClient {
+    return &HuggingFaceClient{
+        BaseURL: cfg.HFBaseURL,
+        APIKey:  cfg.HFAPIKey,
+        Model:   cfg.Model,
+    }
+}
+
 
 func (c *HuggingFaceClient) Generate(prompt string) (*http.Response, error) {
     body := map[string]string{"inputs": prompt}
@@ -30,7 +40,7 @@ func (c *HuggingFaceClient) Generate(prompt string) (*http.Response, error) {
     return http.DefaultClient.Do(req)
 }
 
-func decodeHuggingFace(body io.Reader) (string, error) {
+func (c *HuggingFaceClient) decodeHuggingFace(body io.Reader) (string, error) {
     var res []struct {
         GeneratedText string `json:"generated_text"`
     }

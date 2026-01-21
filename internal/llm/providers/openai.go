@@ -4,8 +4,9 @@ import (
     "bytes"
     "encoding/json"
     "net/http"
-
-    "code-gen-cli/internal/llm"
+	"io"
+    "errors"
+	"code-gen-cli/internal/llm"
 )
 
 type OpenAI struct {
@@ -44,7 +45,7 @@ func (o *OpenAI) Generate(prompt string) (*http.Response, error) {
     return http.DefaultClient.Do(req)
 }
 
-func decodeOpenAI(body io.Reader) (string, error) {
+func (o *OpenAI)decodeOpenAI(body io.Reader) (string, error) {
     var res struct {
         Choices []struct {
             Message struct {

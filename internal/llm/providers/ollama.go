@@ -1,11 +1,15 @@
 package providers
 
 import (
+	"code-gen-cli/agents/models"
     "bytes"
     "encoding/json"
     "net/http"
-
-    "code-gen-cli/internal/llm"
+	"io"
+    "errors"
+	"code-gen-cli/internal/llm"
+	"fmt"
+	"strings"
 )
 
 type Ollama struct {
@@ -36,7 +40,7 @@ func (o *Ollama) Generate(prompt string) (*http.Response, error) {
     )
 }
 
-func decodeOllamaStream(body io.Reader) (string, error) {
+func (o *Ollama) decodeOllamaStream(body io.Reader) (string, error) {
     var result strings.Builder
     decoder := json.NewDecoder(body)
 
