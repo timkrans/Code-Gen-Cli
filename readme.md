@@ -83,7 +83,7 @@ Code written to './example'
 Code-Gen-CLI/
 ├── agents/
 │   ├── code-gen/
-│   │   └── llm.go          # LLM integration with 
+│   │   └── llm.go         
 │   ├── ask/
 │   │   └── llm.go
 │   ├── models/
@@ -92,6 +92,19 @@ Code-Gen-CLI/
 │       └── fs.go           # File system operations
 ├── cmd/
 │   └── main.go             # Main application entry point
+├── internal/
+│   └── llm/
+│       ├── factory/
+|       |   └── factory.go
+│       ├── providers/
+|       |   ├── anthropic.go
+|       |   ├── google.go
+|       |   ├── huggingface.go
+|       |   ├── ollama.go
+|       |   └── openai.go
+│       ├── config.go
+│       └── client.go
+├── .env
 ├── go.mod                  # Go module definition
 └── README.md              # This file
 ```
@@ -107,9 +120,7 @@ The application is structured with a modular architecture:
 ## API Integration
 
 The tool integrates with Ollama's API using the following endpoints:
-- **Endpoint**: `http://localhost:11434/api/generate`
-- **Model**: `llama3.2`
-- **Streaming**: Enabled for real-time response
+- This uses apis to create a modulor flow of data betwen diferent models
 
 ## Generated Code Format
 

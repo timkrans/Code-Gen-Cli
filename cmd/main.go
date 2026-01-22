@@ -5,6 +5,7 @@ import (
     "fmt"
     "os"
     "strings"
+    "github.com/joho/godotenv"
 
     "code-gen-cli/agents/fs"
     "code-gen-cli/agents/code-gen"
@@ -30,6 +31,9 @@ func readMultiline(scanner *bufio.Scanner) string {
 
 
 func main() {
+    if err := godotenv.Load(); err != nil {
+        fmt.Println("No .env file found")
+    }
     fmt.Println("Welcome to LLM Codegen Agent!")
     fmt.Println("Type a prompt and I'll generate code for you.")
     fmt.Println("Type 'quit' or 'exit' to leave.")
