@@ -31,7 +31,7 @@ Prompt:
 
     resp, err := client.Generate(fullPrompt)
     if err != nil {
-        return fmt.Errorf("failed to connect to LLM: %w", err)
+        return nil, fmt.Errorf("failed to connect to LLM: %w", err)
     }
     defer resp.Body.Close()
 
@@ -46,9 +46,6 @@ Prompt:
 
     case "ollama":
         output, err = providers.DecodeOllamaStream(resp.Body)
-        if err != nil {
-            return nil, err
-        }
 
     case "openai":
         output, err = providers.DecodeOpenAI(resp.Body)

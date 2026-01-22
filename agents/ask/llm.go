@@ -10,7 +10,7 @@ import (
     "code-gen-cli/internal/llm/factory"
 )
 
-func GenerateContext(prompt string) error {
+func GenerateAnswer(prompt string) error {
     cfg := llm.LoadConfig()
     client := factory.NewClient(cfg)
 
