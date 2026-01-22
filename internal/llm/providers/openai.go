@@ -45,7 +45,7 @@ func (o *OpenAI) Generate(prompt string) (*http.Response, error) {
     return http.DefaultClient.Do(req)
 }
 
-func (o *OpenAI)decodeOpenAI(body io.Reader) (string, error) {
+func DecodeOpenAI(body io.Reader) (string, error) {
     var res struct {
         Choices []struct {
             Message struct {

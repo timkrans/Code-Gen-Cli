@@ -40,7 +40,7 @@ func (c *HuggingFaceClient) Generate(prompt string) (*http.Response, error) {
     return http.DefaultClient.Do(req)
 }
 
-func (c *HuggingFaceClient) decodeHuggingFace(body io.Reader) (string, error) {
+func DecodeHuggingFace(body io.Reader) (string, error) {
     var res []struct {
         GeneratedText string `json:"generated_text"`
     }

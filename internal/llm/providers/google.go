@@ -44,7 +44,7 @@ func (c *GoogleClient) Generate(prompt string) (*http.Response, error) {
     return http.Post(url, "application/json", bytes.NewBuffer(b))
 }
 
-func decodeGemini(body io.Reader) (string, error) {
+func DecodeGemini(body io.Reader) (string, error) {
     var res struct {
         Candidates []struct {
             Content struct {

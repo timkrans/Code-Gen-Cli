@@ -47,7 +47,7 @@ func (a *Anthropic) Generate(prompt string) (*http.Response, error) {
     return http.DefaultClient.Do(req)
 }
 
-func (a *Anthropic)decodeAnthropic(body io.Reader) (string, error) {
+func DecodeAnthropic(body io.Reader) (string, error) {
     var res struct {
         Content []struct {
             Text string `json:"text"`

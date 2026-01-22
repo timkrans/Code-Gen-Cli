@@ -7,4 +7,5 @@ import(
 
 type LLMClient interface {
     Generate(prompt string) (*http.Response, error)
+	
 }

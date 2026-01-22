@@ -7,6 +7,7 @@ import (
     "path/filepath"
     "strings"
     "code-gen-cli/internal/llm"
+    "code-gen-cli/internal/llm/providers"
     "code-gen-cli/internal/llm/factory"
     "os"
 )
@@ -44,22 +45,22 @@ Prompt:
     switch provider {
 
     case "ollama":
-        output, err = client.decodeOllamaStream(resp.Body)
+        output, err = providers.DecodeOllamaStream(resp.Body)
         if err != nil {
             return nil, err
         }
 
     case "openai":
-        output, err = client.decodeOpenAI(resp.Body)
+        output, err = providers.DecodeOpenAI(resp.Body)
 
     case "anthropic":
-        output, err = client.decodeAnthropic(resp.Body)
+        output, err = providers.DecodeAnthropic(resp.Body)
 
     case "google":
-        output, err = client.decodeGemini(resp.Body)
+        output, err = providers.DecodeGemini(resp.Body)
 
     case "huggingface":
-        output, err = client.decodeHuggingFace(resp.Body)
+        output, err = providers.DecodeHuggingFace(resp.Body)
 
     default:
         return nil, fmt.Errorf("unsupported provider: %s", provider)

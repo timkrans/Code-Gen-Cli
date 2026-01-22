@@ -40,7 +40,7 @@ func (o *Ollama) Generate(prompt string) (*http.Response, error) {
     )
 }
 
-func (o *Ollama) decodeOllamaStream(body io.Reader) (string, error) {
+func DecodeOllamaStream(body io.Reader) (string, error) {
     var result strings.Builder
     decoder := json.NewDecoder(body)
 
