@@ -2,15 +2,14 @@ package code
 
 import (
     "bufio"
-    "bytes"
-    "encoding/json"
-    "errors"
     "fmt"
-    "io"
     "net/http"
     "path/filepath"
     "strings"
-    "code-gen-cli/agents/models"
+    "code-gen-cli/internal/llm"
+    "code-gen-cli/internal/llm/providers"
+    "code-gen-cli/internal/llm/factory"
+    "os"
 )
 
 
@@ -27,20 +26,12 @@ Split the output into files using this format and NOTHING other then this format
 Prompt:
 ` + prompt
 
-    reqBody := models.OllamaRequest{
-        Model:  "llama3.2",
-        Prompt: fullPrompt,
-        Stream: true,
-    }
+    cfg := llm.LoadConfig()
+    client := factory.NewClient(cfg)
 
-    reqBytes, err := json.Marshal(reqBody)
+    resp, err := client.Generate(fullPrompt)
     if err != nil {
-        return nil, err
-    }
-
-    resp, err := http.Post("http://localhost:11434/api/generate", "application/json", bytes.NewBuffer(reqBytes))
-    if err != nil {
-        return nil, fmt.Errorf("failed to connect to Ollama: %w", err)
+        return nil, fmt.Errorf("failed to connect to LLM: %w", err)
     }
     defer resp.Body.Close()
 
@@ -48,23 +39,36 @@ Prompt:
         return nil, fmt.Errorf("Ollama returned non-200: %d", resp.StatusCode)
     }
 
-    var fullResponse strings.Builder
-    decoder := json.NewDecoder(resp.Body)
+    provider := os.Getenv("LLM_PROVIDER")
+    var output string
 
-    for decoder.More() {
-        var chunk models.OllamaResponse
-        err := decoder.Decode(&chunk)
-        if err != nil {
-            if errors.Is(err, io.EOF) {
-                break
-            }
-            return nil, fmt.Errorf("failed to decode Ollama stream: %w", err)
-        }
+    switch provider {
 
-        fullResponse.WriteString(chunk.Response)
+    case "ollama":
+        output, err = providers.DecodeOllamaStream(resp.Body)
+
+    case "openai":
+        output, err = providers.DecodeOpenAI(resp.Body)
+
+    case "anthropic":
+        output, err = providers.DecodeAnthropic(resp.Body)
+
+    case "google":
+        output, err = providers.DecodeGemini(resp.Body)
+
+    case "huggingface":
+        output, err = providers.DecodeHuggingFace(resp.Body)
+
+    default:
+        return nil, fmt.Errorf("unsupported provider: %s", provider)
     }
-    fmt.Printf(fullResponse.String())
-    return parseMultiFileResponse(fullResponse.String()), nil
+
+    if err != nil {
+        return nil, err
+    }
+
+    fmt.Print(output)
+    return parseMultiFileResponse(output), nil
 }
 
 

@@ -1,53 +1,60 @@
-package ask
+package ask 
 
-import(
-	"encoding/json"
-	"strings"
-	"code-gen-cli/agents/models"
-	"fmt"
-	"errors"
-	"net/http"
-	"bytes"
-	"io"
+import (
+    "fmt"
+    "net/http"
+    "io"
+    "os"
+    "code-gen-cli/internal/llm"
+    "code-gen-cli/internal/llm/providers"
+    "code-gen-cli/internal/llm/factory"
 )
 
-func GenerateAnswer(prompt string)(error){
-	reqBody := models.OllamaRequest{
-        Model:  "llama3.2",
-        Prompt: prompt,
-        Stream: true,
-    }
+func GenerateAnswer(prompt string) error {
+    cfg := llm.LoadConfig()
+    client := factory.NewClient(cfg)
 
-    reqBytes, err := json.Marshal(reqBody)
+    resp, err := client.Generate(prompt)
     if err != nil {
-        return err
-    }
-
-    resp, err := http.Post("http://localhost:11434/api/generate", "application/json", bytes.NewBuffer(reqBytes))
-    if err != nil {
-        return fmt.Errorf("failed to connect to Ollama: %w", err)
+        return fmt.Errorf("failed to connect to LLM: %w", err)
     }
     defer resp.Body.Close()
 
     if resp.StatusCode != http.StatusOK {
-        return fmt.Errorf("Ollama returned non-200: %d", resp.StatusCode)
+        body, _ := io.ReadAll(resp.Body)
+        return fmt.Errorf("LLM returned %d: %s", resp.StatusCode, string(body))
     }
 
-	var fullResponse strings.Builder
-    decoder := json.NewDecoder(resp.Body)
+    provider := os.Getenv("LLM_PROVIDER")
+    var output string
 
-    for decoder.More() {
-        var chunk models.OllamaResponse
-        err := decoder.Decode(&chunk)
+    switch provider {
+
+    case "ollama":
+        output, err = providers.DecodeOllamaStream(resp.Body)
         if err != nil {
-            if errors.Is(err, io.EOF) {
-                break
-            }
-            return fmt.Errorf("failed to decode Ollama stream: %w", err)
+            return err
         }
+    case "openai":
+        output, err = providers.DecodeOpenAI(resp.Body)
 
-        fullResponse.WriteString(chunk.Response)
+    case "anthropic":
+        output, err = providers.DecodeAnthropic(resp.Body)
+
+    case "google":
+        output, err = providers.DecodeGemini(resp.Body)
+
+    case "huggingface":
+        output, err = providers.DecodeHuggingFace(resp.Body)
+
+    default:
+        return fmt.Errorf("unsupported provider: %s", provider)
     }
-	fmt.Printf(fullResponse.String())
-	return nil
+
+    if err != nil {
+        return err
+    }
+
+    fmt.Print(output)
+    return nil
 }
