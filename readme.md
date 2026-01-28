@@ -13,8 +13,6 @@ A command-line interface for generating code using LLM (Large Language Model) ag
 ## Prerequisites
 
 - Go 1.24.5 or later
-- [Ollama](https://ollama.ai/) installed and running locally
-- Llama 3.2 model pulled in Ollama
 
 ## Installation
 
@@ -46,6 +44,24 @@ ollama serve
 ```bash
 ollama pull llama3.2
 ```
+
+4. Use the .env.ollama.example and save it as .env
+
+## Setup anthropic
+1. Use the .env.anthropic.example and save it as .env
+2. Grab the model, api base, and api key and update the .env you just saved
+
+## Setup OpenAI
+1. Use the .env.openai.example and save it as .env
+2. Grab the model, api base, and api key and update the .env you just saved
+
+## Setup Gemini
+1. Use the .env.google.example and save it as .env
+2. Grab the model, api base, and api key and update the .env you just saved
+
+## Setup hungging face
+1. Use the .env.huggingface.example and save it as .env
+2. Grab the model, api base, and api key and update the .env you just saved
 
 ## Usage
 
@@ -132,24 +148,10 @@ The LLM generates code using a specific format:
 
 This format allows the tool to parse multiple files from a single LLM response and write them to the appropriate locations.
 
-## Configuration
-
-- **Output Directory**: Currently hardcoded to `./test` (can be modified in `cmd/main.go`)
-- **Ollama URL**: `http://localhost:11434` (default Ollama installation)
-- **Model**: `llama3.2` (can be changed in `agents/code-gen/llm.go`)
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Connection Error**: Make sure Ollama is running (`ollama serve`)
-2. **Model Not Found**: Ensure Llama 3.2 is pulled (`ollama pull llama3.2`)
-3. **Permission Errors**: Check write permissions for the output directory
 
 ## Future Goal
 
 1. Build out to allow for real time context of projects
 2. Build an optimization model to optimize the per token context of above
-3. Incorperate with other models
-4. Add commands such as npm and pythons pip and venv
-5. Add realtime error handing giving suggested ideas
+3. Add commands such as npm and pythons pip and venv
+4. Add realtime error handing giving suggested ideas
