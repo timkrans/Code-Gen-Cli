@@ -16,7 +16,7 @@ import (
 func GenerateCode(prompt string) (map[string]string, error) {
     fmt.Println("Connecting to Ollama...")
 
-    fullPrompt := `You are a code generation assistant.
+    fullPrompt := `You are a code generation assistant who only responds in the below no other words.
 Generate Go code based on the following prompt.
 Split the output into files using this format and NOTHING other then this format starting with no spaces:
 
