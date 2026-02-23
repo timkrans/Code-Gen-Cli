@@ -1,6 +1,6 @@
 # Code-Gen-CLI
 
-A command-line interface for generating code using LLM (Large Language Model) agents. This tool allows you to describe what code you want, and it will generate the corresponding Go code files for you.
+A command-line interface for generating code using LLM (Large Language Model) agents. This tool allows you to describe what code you want, and it will generate the corresponding code files for you.
 
 ## Features
 
